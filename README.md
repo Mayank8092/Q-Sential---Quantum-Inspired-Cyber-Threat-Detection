@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🦉 NightOwl — Quantum Digital Signature (QDS) Verification + Cyber-Threat Detection
 
 **SIH Prototype** — Simulated Transaction + Teleportation-based QDS Environment
@@ -179,3 +180,7 @@ NightOwl/
 - All quantum operations run on the classical AerSimulator for demonstration.
 
 Built for Smart India Hackathon.
+=======
+# Q-Sential---Quantum-Inspired-Cyber-Threat-Detection
+Q-Sential is a quantum-inspired cybersecurity project designed to detect threats against digital signatures. It uses quantum concepts such as Bell-state entanglement, quantum teleportation, Pauli operations, projective measurement, and statistical threshold analysis to identify potential forgery, replay, impersonation, and channel-tampering attacks
+>>>>>>> 914b94d25aacfb1191ceeb8462ef142038877bd1
