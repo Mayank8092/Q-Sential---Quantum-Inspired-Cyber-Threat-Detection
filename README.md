@@ -172,14 +172,14 @@ NightOwl/
 
 ---
 
-## Notes for SIH
+## Notes 
 
 - This is a **simulated** QDS environment.
 - The exact mathematical form of the QDS signature follows a teleportation-based protocol implemented with Qiskit.
 - NightOwl never intercepts real Google Pay / UPI traffic.
 - All quantum operations run on the classical AerSimulator for demonstration.
 
-Built for Smart India Hackathon.
+Built 
 =======
 # Q-Sential---Quantum-Inspired-Cyber-Threat-Detection
 Q-Sential is a quantum-inspired cybersecurity project designed to detect threats against digital signatures. It uses quantum concepts such as Bell-state entanglement, quantum teleportation, Pauli operations, projective measurement, and statistical threshold analysis to identify potential forgery, replay, impersonation, and channel-tampering attacks
