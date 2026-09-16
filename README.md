@@ -1,0 +1,2 @@
+# Q-Sential---Quantum-Inspired-Cyber-Threat-Detection
+Q-Sential is a quantum-inspired cybersecurity project designed to detect threats against digital signatures. It uses quantum concepts such as Bell-state entanglement, quantum teleportation, Pauli operations, projective measurement, and statistical threshold analysis to identify potential forgery, replay, impersonation, and channel-tampering attacks
