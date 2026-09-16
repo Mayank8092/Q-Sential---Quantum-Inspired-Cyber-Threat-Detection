@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Attack Simulator{% endblock %}
+{% block header %}⚔️ Attack Simulator{% endblock %}
+
+{% block content %}
+<div class="card">
+  <p style="color:var(--muted); margin-bottom:1.25rem">
+    Select an attack scenario. NightOwl will generate the package, apply the attack, and immediately run the full verification pipeline so judges can see the detection live.
+  </p>
+
+  <div class="attack-grid" id="attackGrid">
+    <div class="attack-card selected" data-type="normal">
+      <div class="icon">🟢</div>
+      <div class="name">Normal</div>
+      <div class="desc">Legitimate ₹1000 → Maya</div>
+    </div>
+    <div class="attack-card" data-type="forgery">
+      <div class="icon">🔴</div>
+      <div class="name">Forgery</div>
+      <div class="desc">Amount / receiver changed after signing</div>
+    </div>
+    <div class="attack-card" data-type="replay">
+      <div class="icon">🔁</div>
+      <div class="name">Replay</div>
+      <div class="desc">Same nonce used twice</div>
+    </div>
+    <div class="attack-card" data-type="impersonation">
+      <div class="icon">🎭</div>
+      <div class="name">Impersonation</div>
+      <div class="desc">Unauthorized sender identity</div>
+    </div>
+    <div class="attack-card" data-type="channel">
+      <div class="icon">📡</div>
+      <div class="name">Channel Attack</div>
+      <div class="desc">Measurement distribution manipulated</div>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem">
+    <div class="form-group" style="flex:1; min-width:120px">
+      <label>Sender</label>
+      <input type="text" id="sender" value="Alice" />
+    </div>
+    <div class="form-group" style="flex:1; min-width:120px">
+      <label>Receiver</label>
+      <input type="text" id="receiver" value="Maya" />
+    </div>
+    <div class="form-group" style="flex:1; min-width:120px">
+      <label>Amount (₹)</label>
+      <input type="number" id="amount" value="1000" min="1" />
+    </div>
+  </div>
+
+  <button class="btn btn-danger" id="runBtn">⚔️ RUN ATTACK SIMULATION</button>
+</div>
+
+<div class="loader" id="loader">
+  <div class="spinner"></div>
+  <p>Simulating attack + running NightOwl verification…</p>
+</div>
+
+<div class="result-box" id="result"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let selectedAttack = "normal";
+
+document.querySelectorAll(".attack-card").forEach(card => {
+  card.addEventListener("click", () => {
+    document.querySelectorAll(".attack-card").forEach(c => c.classList.remove("selected"));
+    card.classList.add("selected");
+    selectedAttack = card.dataset.type;
+  });
+});
+
+document.getElementById("runBtn").addEventListener("click", async () => {
+  showLoader("loader", true);
+  document.getElementById("result").className = "result-box";
+
+  try {
+    const body = {
+      attack_type: selectedAttack,
+      sender: document.getElementById("sender").value.trim(),
+      receiver: document.getElementById("receiver").value.trim(),
+      amount: parseFloat(document.getElementById("amount").value)
+    };
+    const data = await api("/api/simulate-attack", {
+      method: "POST",
+      body: JSON.stringify(body)
+    });
+
+    const v = data.verification;
+    const info = data.attack_info;
+
+    const threats = (v.threats || []).length
+      ? `<p><strong>Detected threats:</strong> ${v.threats.join(", ")}</p>` : "";
+
+    const html = `
+      ${decisionBadge(v.decision)}
+      <p><strong>Attack:</strong> ${info.attack_type.toUpperCase()} — ${info.description}</p>
+      <p><strong>Expected by simulator:</strong> ${info.expected_decision} &nbsp;|&nbsp; <strong>NightOwl decided:</strong> ${v.decision}</p>
+      ${threats}
+      ${renderSteps(v.steps)}
+      <details style="margin-top:1rem">
+        <summary style="cursor:pointer;color:var(--muted)">Full verification response</summary>
+        ${pretty(v)}
+      </details>
+    `;
+    showResult("result", v.decision.toLowerCase(), html);
+  } catch (err) {
+    showResult("result", "rejected", decisionBadge("REJECTED") + `<p>${err.message}</p>`);
+  } finally {
+    showLoader("loader", false);
+  }
+});
+</script>
+{% endblock %}

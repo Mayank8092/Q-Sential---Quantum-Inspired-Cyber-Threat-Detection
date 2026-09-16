@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block header %}🦉 Q-Sential Dashboard{% endblock %}
+
+{% block content %}
+<div class="grid-4">
+  <div class="stat-card">
+    <div class="value">{{ stats.total }}</div>
+    <div class="label">Total Verifications</div>
+  </div>
+  <div class="stat-card accepted">
+    <div class="value">{{ stats.accepted }}</div>
+    <div class="label">Accepted</div>
+  </div>
+  <div class="stat-card rejected">
+    <div class="value">{{ stats.rejected }}</div>
+    <div class="label">Rejected</div>
+  </div>
+  <div class="stat-card threats">
+    <div class="value">{{ stats.threats }}</div>
+    <div class="label">Threats Detected</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Latest Verifications</h2>
+  {% if history %}
+  <table>
+    <thead>
+      <tr>
+        <th>TXN ID</th>
+        <th>Sender → Receiver</th>
+        <th>Amount</th>
+        <th>Decision</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for v in history %}
+      <tr>
+        <td><code>{{ v.transaction_id }}</code></td>
+        <td>{{ v.sender }} → {{ v.receiver }}</td>
+        <td>₹ {{ v.amount }}</td>
+        <td><span class="tag {{ v.decision|lower }}">{{ v.decision }}</span></td>
+        <td>{{ v.verified_at[:19] if v.verified_at else '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--muted)">No verifications yet. Go to <a href="/generate" style="color:var(--accent2)">Generate Transaction</a> or <a href="/attacks" style="color:var(--accent2)">Attack Simulator</a>.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h3>How Q-Sential Works</h3>
+  <p style="color:var(--muted); margin-bottom:0.75rem">
+    User only enters <strong>Amount</strong> + <strong>Receiver</strong>. Backend automatically creates Transaction ID, Nonce, Message Hash, Bell state, Teleportation, Pauli correction, Measurement & QDS verification data. NightOwl then runs security checks + Qiskit quantum verification + statistical analysis and returns <strong>ACCEPT / FLAG / REJECT</strong>.
+  </p>
+  <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+    <a href="/generate" class="btn btn-primary">💸 Send Securely</a>
+    <a href="/attacks" class="btn btn-danger">⚔️ Run Attack Demo</a>
+    <a href="/verify" class="btn btn-ghost">🔐 Verify Package</a>
+  </div>
+</div>
+{% endblock %}

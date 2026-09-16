@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Verify QDS{% endblock %}
+{% block header %}🔐 Verify QDS Package{% endblock %}
+
+{% block content %}
+<div class="card">
+  <p style="color:var(--muted); margin-bottom:1rem">
+    Paste a full QDS package JSON (from Generate Transaction or Attack Simulator) and run the complete Q-Sential verification pipeline.
+  </p>
+  <div class="form-group">
+    <label>QDS Package (JSON)</label>
+    <textarea id="packageJson" placeholder='{"transaction_id":"NW-TXN-...","sender":"Alice", ...}'></textarea>
+  </div>
+  <button class="btn btn-primary" id="verifyBtn">🔍 VERIFY</button>
+</div>
+
+<div class="loader" id="loader">
+  <div class="spinner"></div>
+  <p>Running Q-Sential pipeline…</p>
+  <ul class="steps" style="max-width:400px;margin:1rem auto;text-align:left">
+    <li>Input Validation</li>
+    <li>Identity Check</li>
+    <li>Nonce / Replay Check</li>
+    <li>Timestamp Check</li>
+    <li>QDS Protocol (Bell → Teleport → Pauli)</li>
+    <li>Measurement + Statistical Analysis</li>
+    <li>Threat Detection</li>
+  </ul>
+</div>
+
+<div class="result-box" id="result"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById("verifyBtn").addEventListener("click", async () => {
+  const raw = document.getElementById("packageJson").value.trim();
+  if (!raw) { alert("Paste a package JSON first"); return; }
+
+  let package;
+  try { package = JSON.parse(raw); }
+  catch { alert("Invalid JSON"); return; }
+
+  showLoader("loader", true);
+  document.getElementById("result").className = "result-box";
+
+  try {
+    const data = await api("/api/verify", {
+      method: "POST",
+      body: JSON.stringify({ package })
+    });
+
+    const threats = (data.threats || []).length
+      ? `<p><strong>Threats:</strong> ${data.threats.join(", ")}</p>` : "";
+
+    const html = `
+      ${decisionBadge(data.decision)}
+      <p>${data.message || ""}</p>
+      ${threats}
+      ${renderSteps(data.steps)}
+      ${data.quantum ? `<h4 style="margin:1rem 0 0.5rem">Quantum Statistics</h4>
+        <table>
+          <tr><td>Total Variation Distance</td><td>${data.quantum.statistics.total_variation_distance.toFixed(4)}</td></tr>
+          <tr><td>Max Deviation</td><td>${data.quantum.statistics.max_deviation.toFixed(4)}</td></tr>
+          <tr><td>Chi-square</td><td>${data.quantum.statistics.chi_square.toFixed(2)}</td></tr>
+          <tr><td>p-value</td><td>${data.quantum.statistics.p_value.toFixed(4)}</td></tr>
+        </table>` : ""}
+      <details style="margin-top:1rem">
+        <summary style="cursor:pointer;color:var(--muted)">Full response</summary>
+        ${pretty(data)}
+      </details>
+    `;
+    showResult("result", data.decision.toLowerCase(), html);
+  } catch (err) {
+    showResult("result", "rejected", decisionBadge("REJECTED") + `<p>${err.message}</p>`);
+  } finally {
+    showLoader("loader", false);
+  }
+});
+</script>
+{% endblock %}

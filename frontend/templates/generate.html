@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Generate Transaction{% endblock %}
+{% block header %}💸 Generate Secure Transaction{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:520px">
+  <p style="color:var(--muted); margin-bottom:1.25rem">
+    User only provides the classic payment fields. Everything quantum & security related is generated automatically by the QDS protocol.
+  </p>
+
+  <form id="txnForm">
+    <div class="form-group">
+      <label>Sender</label>
+      <input type="text" id="sender" value="Alice" required />
+    </div>
+    <div class="form-group">
+      <label>Receiver</label>
+      <input type="text" id="receiver" value="Maya" required />
+    </div>
+    <div class="form-group">
+      <label>Amount (₹)</label>
+      <input type="number" id="amount" value="1000" min="1" step="1" required />
+    </div>
+    <button type="submit" class="btn btn-primary" style="width:100%">🔒 SEND SECURELY</button>
+  </form>
+</div>
+
+<div class="loader" id="loader">
+  <div class="spinner"></div>
+  <p>Generating QDS package… Bell state → Teleportation → Pauli → Measurement</p>
+</div>
+
+<div class="result-box" id="result"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById("txnForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  showLoader("loader", true);
+  document.getElementById("result").className = "result-box";
+
+  try {
+    const body = {
+      sender: document.getElementById("sender").value.trim(),
+      receiver: document.getElementById("receiver").value.trim(),
+      amount: parseFloat(document.getElementById("amount").value)
+    };
+    const data = await api("/api/transactions", {
+      method: "POST",
+      body: JSON.stringify(body)
+    });
+
+    const p = data.package;
+    const html = `
+      ${decisionBadge("ACCEPTED")}
+      <p style="margin-bottom:1rem">Transaction + QDS package created successfully.</p>
+      <table>
+        <tr><td>Transaction ID</td><td><code>${p.transaction_id}</code></td></tr>
+        <tr><td>Nonce</td><td><code>${p.nonce}</code></td></tr>
+        <tr><td>Message</td><td>${p.message}</td></tr>
+        <tr><td>Hash</td><td><code style="font-size:0.75rem">${p.message_hash.slice(0,32)}…</code></td></tr>
+        <tr><td>Protocol</td><td>${p.protocol}</td></tr>
+        <tr><td>Bell State</td><td>${p.qds_data.bell_state}</td></tr>
+        <tr><td>Pauli Correction</td><td>${p.qds_data.pauli_correction}</td></tr>
+        <tr><td>Shots</td><td>${p.shots}</td></tr>
+      </table>
+      <p style="margin-top:1rem; color:var(--muted)">You can now go to <a href="/verify" style="color:var(--accent2)">Verify QDS</a> or copy the package JSON below.</p>
+      ${pretty(p)}
+      <button class="btn btn-ghost" style="margin-top:1rem" onclick="navigator.clipboard.writeText(JSON.stringify(${JSON.stringify(p)}, null, 2))">📋 Copy Package JSON</button>
+    `;
+    showResult("result", "accepted", html);
+  } catch (err) {
+    showResult("result", "rejected", decisionBadge("REJECTED") + `<p>${err.message}</p>`);
+  } finally {
+    showLoader("loader", false);
+  }
+});
+</script>
+{% endblock %}

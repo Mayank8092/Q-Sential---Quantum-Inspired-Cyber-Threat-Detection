@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Security Reports{% endblock %}
+{% block header %}📊 Security Reports{% endblock %}
+
+{% block content %}
+<div class="grid-4">
+  <div class="stat-card">
+    <div class="value">{{ stats.total }}</div>
+    <div class="label">Total Checks</div>
+  </div>
+  <div class="stat-card accepted">
+    <div class="value">{{ stats.accepted }}</div>
+    <div class="label">Clean</div>
+  </div>
+  <div class="stat-card rejected">
+    <div class="value">{{ stats.rejected }}</div>
+    <div class="label">Blocked</div>
+  </div>
+  <div class="stat-card threats">
+    <div class="value">{{ stats.threats }}</div>
+    <div class="label">Threat Events</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Threat Events</h2>
+  {% if threats %}
+  <table>
+    <thead>
+      <tr>
+        <th>TXN ID</th>
+        <th>Type</th>
+        <th>Sender</th>
+        <th>Decision</th>
+        <th>Threats</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in threats %}
+      <tr>
+        <td><code>{{ t.transaction_id }}</code></td>
+        <td>{{ t.package.protocol if t.package else "—" }}</td>
+        <td>{{ t.sender }}</td>
+        <td><span class="tag {{ t.decision|lower }}">{{ t.decision }}</span></td>
+        <td>{{ t.threats|join(", ") if t.threats else "—" }}</td>
+        <td>{{ t.verified_at[:19] if t.verified_at else "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--muted)">No threat events recorded yet. Run the Attack Simulator to generate some.</p>
+  {% endif %}
+</div>
+{% endblock %}

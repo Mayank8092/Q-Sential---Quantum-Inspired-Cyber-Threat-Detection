@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}History{% endblock %}
+{% block header %}📜 Verification History{% endblock %}
+
+{% block content %}
+<div class="card">
+  {% if history %}
+  <table>
+    <thead>
+      <tr>
+        <th>TXN ID</th>
+        <th>Sender → Receiver</th>
+        <th>Amount</th>
+        <th>Decision</th>
+        <th>Threats</th>
+        <th>Verified At</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for v in history %}
+      <tr>
+        <td><code>{{ v.transaction_id }}</code></td>
+        <td>{{ v.sender }} → {{ v.receiver }}</td>
+        <td>₹ {{ v.amount }}</td>
+        <td><span class="tag {{ v.decision|lower }}">{{ v.decision }}</span></td>
+        <td>{{ v.threats|join(", ") if v.threats else "—" }}</td>
+        <td>{{ v.verified_at[:19] if v.verified_at else "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--muted)">No history yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

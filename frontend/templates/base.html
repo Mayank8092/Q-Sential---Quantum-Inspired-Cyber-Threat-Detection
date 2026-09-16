@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Q-Sential{% endblock %} | QDS Security</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="logo">
+        <span class="owl">🦉</span>
+        <div>
+          <strong>Q-Sential</strong>
+          <small>QDS Security</small>
+        </div>
+      </div>
+      <ul class="nav-links">
+        <li class="{% if page == 'dashboard' %}active{% endif %}">
+          <a href="/">🏠 Dashboard</a>
+        </li>
+        <li class="{% if page == 'generate' %}active{% endif %}">
+          <a href="/generate">💸 Generate Transaction</a>
+        </li>
+        <li class="{% if page == 'verify' %}active{% endif %}">
+          <a href="/verify">🔐 Verify QDS</a>
+        </li>
+        <li class="{% if page == 'attacks' %}active{% endif %}">
+          <a href="/attacks">⚔️ Attack Simulator</a>
+        </li>
+        <li class="{% if page == 'history' %}active{% endif %}">
+          <a href="/history">📜 Verification History</a>
+        </li>
+        <li class="{% if page == 'reports' %}active{% endif %}">
+          <a href="/reports">📊 Security Reports</a>
+        </li>
+      </ul>
+      <div class="sidebar-footer">
+        <small>SIH Prototype · Teleportation-QDS</small>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="content">
+      <header class="topbar">
+        <h1>{% block header %}NightOwl{% endblock %}</h1>
+        <div class="status-pill">
+          <span class="dot"></span> System Online
+        </div>
+      </header>
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
